@@ -4,7 +4,7 @@
 # so that this becomes a linear problem with constant Biot Modulus
 # Also, since the FullySaturated Kernels are used, we have to
 # use consistent_with_displaced_mesh = false in the calculation of volumetric strain
-#
+# 
 # A saturated soil sample sits in a bath of water.
 # It is constrained on its sides, and bottom.
 # Its sides and bottom are also impermeable.
@@ -13,12 +13,12 @@
 # The soil then slowly compresses as water is squeezed
 # out from the sample from its top (the top BC for
 # the porepressure is porepressure = 0).
-#
+# 
 # See, for example.  Section 2.2 of the online manuscript
 # Arnold Verruijt "Theory and Problems of Poroelasticity" Delft University of Technology 2013
 # but note that the "sigma" in that paper is the negative
 # of the stress in TensorMechanics
-#
+# 
 # Here are the problem's parameters, and their values:
 # Soil height.  h = 10
 # Soil's Lame lambda.  la = 2
@@ -37,12 +37,12 @@
 # Initial porepressure, resulting from instantaneous application of q, assuming corresponding instantaneous increase of porepressure (Note that this is calculated by MOOSE: we only need it for the analytical solution).  p0 = alpha*m*q/(S + alpha^2 m) = 0.69767442
 # Initial vertical displacement (down is positive), resulting from instantaneous application of q (Note this is calculated by MOOSE: we only need it for the analytical solution).  uz0 = q*m*h*S/(S + alpha^2 m)
 # Final vertical displacement (down in positive) (Note this is calculated by MOOSE: we only need it for the analytical solution).  uzinf = q*m*h
-#
+# 
 # The solution for porepressure is
 # P = 4*p0/\pi \sum_{k=1}^{\infty} \frac{(-1)^{k-1}}{2k-1} \cos ((2k-1)\pi z/(2h)) \exp(-(2k-1)^2 \pi^2 ct/(4 h^2))
 # This series converges very slowly for ct/h^2 small, so in that domain
 # P = p0 erf( (1-(z/h))/(2 \sqrt(ct/h^2)) )
-#
+# 
 # The degree of consolidation is defined as
 # U = (uz - uz0)/(uzinf - uz0)
 # where uz0 and uzinf are defined above, and
@@ -77,6 +77,9 @@
   [./disp_z]
   [../]
   [./porepressure]
+  [../]
+  [./temp]
+    initial_condition = 1
   [../]
 []
 
@@ -133,14 +136,14 @@
   biot_coefficient = 0.6
   gravity = '0 0 0'
   fp = the_simple_fluid
+  temperature = temp
 []
-
 
 [Materials]
   [./elasticity_tensor]
+    # bulk modulus is lambda + 2*mu/3 = 2 + 2*3/3 = 4
     type = ComputeElasticityTensor
     C_ijkl = '2 3'
-    # bulk modulus is lambda + 2*mu/3 = 2 + 2*3/3 = 4
     fill_method = symmetric_isotropic
   [../]
   [./strain]
@@ -152,6 +155,7 @@
   [./porosity]
     type = PorousFlowPorosityConst # only the initial value of this is used
     porosity = 0.1
+    at_nodes = true
   [../]
   [./biot_modulus]
     type = PorousFlowConstantBiotModulus
@@ -162,6 +166,25 @@
   [./permeability]
     type = PorousFlowPermeabilityConst
     permeability = '1.5 0 0   0 1.5 0   0 0 1.5'
+  [../]
+  [./porous_flow_thermal_expansion_coeff]
+    type = PorousFlowConstantThermalExpansionCoefficient
+    block = '0 0'
+    drained_coefficient = 0.00021
+  [../]
+  [./pf_mat_int_energy]
+    type = PorousFlowMatrixInternalEnergy
+    specific_heat_capacity = 1.0
+    density = 1.0
+  [../]
+  [./pf_therm_conduc_poro]
+    type = PorousFlowThermalConductivityFromPorosity
+    lambda_f = '1 1 1 1 1 1 1 1 1'
+    lambda_s = '1 1 1 1 1 1 1 1 1'
+  [../]
+  [./poro_qp]
+    type = PorousFlowPorosityConst
+    porosity = 0.1
   [../]
 []
 
@@ -257,7 +280,6 @@
   [../]
 []
 
-
 [Preconditioning]
   [./andy]
     type = SMP
@@ -281,9 +303,10 @@
 
 [Outputs]
   exodus = true
-  execute_on = 'timestep_end'
+  execute_on = timestep_end
   file_base = terzaghi_basicthm
   [./csv]
     type = CSV
   [../]
 []
+
