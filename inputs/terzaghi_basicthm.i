@@ -280,6 +280,7 @@
 []
 
 [Outputs]
+  exodus = true
   execute_on = 'timestep_end'
   file_base = terzaghi_basicthm
   [./csv]
