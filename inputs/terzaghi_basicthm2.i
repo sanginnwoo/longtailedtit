@@ -79,7 +79,7 @@
   [./porepressure]
   [../]
   [./temp]
-    initial_condition = 1
+    initial_condition = 293
   [../]
 []
 
@@ -170,17 +170,17 @@
   [./porous_flow_thermal_expansion_coeff]
     type = PorousFlowConstantThermalExpansionCoefficient
     block = '0 0'
-    drained_coefficient = 0.00021
+    drained_coefficient = 0.000
   [../]
   [./pf_mat_int_energy]
     type = PorousFlowMatrixInternalEnergy
-    specific_heat_capacity = 1.0
-    density = 1.0
+    specific_heat_capacity = 0.0
+    density = 0.0
   [../]
   [./pf_therm_conduc_poro]
     type = PorousFlowThermalConductivityFromPorosity
-    lambda_f = '1 1 1 1 1 1 1 1 1'
-    lambda_s = '1 1 1 1 1 1 1 1 1'
+    lambda_f = '0 0 0 0 0 0 0 0 0'
+    lambda_s = '0 0 0 0 0 0 0 0 0'
   [../]
   [./poro_qp]
     type = PorousFlowPorosityConst
