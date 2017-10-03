@@ -123,7 +123,7 @@
       thermal_expansion = 0.0
       bulk_modulus = 8.0
       viscosity = 0.96
-      density0 = 1.0
+      density = 1.0
     [../]
   [../]
 []
@@ -157,11 +157,15 @@
     porosity = 0.1
     at_nodes = true
   [../]
+  [./porosity_qp]
+    type = PorousFlowPorosityConst # only the initial value of this is used
+    porosity = 0.1
+  [../]
   [./biot_modulus]
     type = PorousFlowConstantBiotModulus
     biot_coefficient = 0.6
     fluid_bulk_modulus = 8
-    solid_bulk_compliance = 0.25
+    solid_bulk_compliance = 4
   [../]
   [./permeability]
     type = PorousFlowPermeabilityConst
@@ -175,17 +179,14 @@
   [./pf_mat_int_energy]
     type = PorousFlowMatrixInternalEnergy
     specific_heat_capacity = 0.0
-    density = 0.0
+    density = 1.0
   [../]
   [./pf_therm_conduc_poro]
     type = PorousFlowThermalConductivityFromPorosity
-    lambda_f = '0 0 0 0 0 0 0 0 0'
-    lambda_s = '0 0 0 0 0 0 0 0 0'
+    lambda_f = '1.0 0 0  0 1.0 0  0 0 1.0'
+    lambda_s = '1.0 0 0  0 1.0 0  0 0 1.0'
   [../]
-  [./poro_qp]
-    type = PorousFlowPorosityConst
-    porosity = 0.1
-  [../]
+  
 []
 
 [Postprocessors]
@@ -285,7 +286,7 @@
     type = SMP
     full = true
     petsc_options_iname = '-ksp_type -pc_type -snes_atol -snes_rtol -snes_max_it'
-    petsc_options_value = 'bcgs bjacobi 1E-14 1E-10 10000'
+    petsc_options_value = 'bcgs bjacobi 1E-10 1E-5 10000'
   [../]
 []
 
