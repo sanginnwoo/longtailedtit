@@ -171,19 +171,10 @@
     type = ComputeSmallStrain
     eigenstrain_names = thermal_contribution
   [../]
-  [./var_dependence]
-    type = DerivativeParsedMaterial
-    function = temperature
-    args = temperature
-    f_name = var_dep
-    enable_jit = true
-    derivative_order = 2
-  [../]
   [./thermal_contribution]
-    type = ComputeVariableEigenstrain
-    eigen_base = '1E-6 1E-6 1E-6 0 0 0' # thermal expansion = 1E-6
-    prefactor = var_dep
-    args = temperature
+    type = ComputeThermalExpansionEigenstrain
+    temperature = temperature
+    thermal_expansion_coeff = 1E-6
     eigenstrain_name = thermal_contribution
   [../]
   [./stress]
